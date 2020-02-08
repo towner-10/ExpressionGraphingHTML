@@ -1,0 +1,73 @@
+<head>
+    <title>Graphing</title>
+
+    <script src="https://unpkg.com/mathjs@6.6.0/dist/math.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
+</head>
+
+<body>
+    <form id="form">
+        <label for="eq">Enter an equation:</label>
+        <input type="text" id="equation" value="1/x" />
+        <input type="submit" value="Update" />
+    </form>
+
+    <!--The container has a style to scale the chart to a certain scale/size-->
+    <div class="container" style="position: relative; height:60vh; width:60vw">
+        <canvas id="chart"></canvas>
+    </div>
+
+    <script>
+        function draw() {
+            try {
+                // Get the equation as a string
+                var expression = document.getElementById('equation').value;
+
+                // Added this just for fun
+                expression = expression.replace("f(x)", "y");
+
+                // Compile the equitation into a math expression
+                const expr = math.compile(expression);
+
+                // The X values go from -10 to 10 and have a step of 0.25
+                const xValues = math.range(-10, 10, 0.25).toArray();
+
+                // The Y values are calculated here
+                const yValues = xValues.map(function (x) {
+                    return expr.evaluate({x: x});
+                });
+
+                // Get the Chart.JS context in the HTML document
+                var ctx = document.getElementById("chart").getContext("2d");
+
+                // Create the Chart using the X and Y values calculated earlier
+                var chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        datasets: [{
+                            label: "Equation",
+                            data: yValues
+                        }],
+                        labels: xValues
+                    },
+                    options: {
+                        // Enables the user to scale the graph
+                        maintainAspectRatio: false
+                    }
+                });
+            }
+
+            catch (err) {
+                console.error(err);
+                alert(err);
+            }
+        }
+
+        document.getElementById('form').onsubmit = function (event) {
+            event.preventDefault();
+            draw();
+        }
+
+        draw();
+    </script>
+</body>
